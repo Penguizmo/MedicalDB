@@ -1,18 +1,24 @@
 package com.medicaldb.dao;
 
 import com.medicaldb.model.Insurance;
-import com.medicaldb.model.InsuredPatient;
 import com.medicaldb.util.DatabaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class InsuranceDAO {
+    private static final Logger logger = Logger.getLogger(InsuranceDAO.class.getName());
+    private Connection connection;
 
-    // Create
+    public InsuranceDAO(Connection connection) {
+        this.connection = connection;
+    }
+
     public void addInsurance(Insurance insurance) {
-        String sql = "INSERT INTO insurance (insuranceId, company, address, phone) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO insurance (insuranceid, company, address, phone) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, insurance.getInsuranceId());
@@ -20,33 +26,32 @@ public class InsuranceDAO {
             stmt.setString(3, insurance.getAddress());
             stmt.setString(4, insurance.getPhone());
             stmt.executeUpdate();
+            logger.log(Level.INFO, "Insurance added successfully: {0}", insurance);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error adding insurance", e);
         }
     }
 
-    // Read
     public Insurance getInsurance(String insuranceId) {
-        String sql = "SELECT * FROM insurance WHERE insuranceId = ?";
+        String sql = "SELECT * FROM insurance WHERE insuranceid = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, insuranceId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Insurance(
-                        rs.getString("insuranceId"),
+                        rs.getString("insuranceid"),
                         rs.getString("company"),
                         rs.getString("address"),
                         rs.getString("phone")
                 );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error retrieving insurance", e);
         }
         return null;
     }
 
-    // Read All
     public List<Insurance> getAllInsurances() {
         List<Insurance> insurances = new ArrayList<>();
         String sql = "SELECT * FROM insurance";
@@ -55,21 +60,20 @@ public class InsuranceDAO {
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 insurances.add(new Insurance(
-                        rs.getString("insuranceId"),
+                        rs.getString("insuranceid"),
                         rs.getString("company"),
                         rs.getString("address"),
                         rs.getString("phone")
                 ));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error retrieving all insurances", e);
         }
         return insurances;
     }
 
-    // Update
     public void updateInsurance(Insurance insurance) {
-        String sql = "UPDATE insurance SET company = ?, address = ?, phone = ? WHERE insuranceId = ?";
+        String sql = "UPDATE insurance SET company = ?, address = ?, phone = ? WHERE insuranceid = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, insurance.getCompany());
@@ -77,33 +81,21 @@ public class InsuranceDAO {
             stmt.setString(3, insurance.getPhone());
             stmt.setString(4, insurance.getInsuranceId());
             stmt.executeUpdate();
+            logger.log(Level.INFO, "Insurance updated successfully: {0}", insurance);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error updating insurance", e);
         }
     }
 
-    // Delete
     public void deleteInsurance(String insuranceId) {
-        String sql = "DELETE FROM insurance WHERE insuranceId = ?";
+        String sql = "DELETE FROM insurance WHERE insuranceid = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, insuranceId);
             stmt.executeUpdate();
+            logger.log(Level.INFO, "Insurance deleted successfully: {0}", insuranceId);
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Check if data is from InsuredPatient or Insurance
-    public void checkData(Object obj) {
-        if (obj instanceof InsuredPatient) {
-            InsuredPatient insuredPatient = (InsuredPatient) obj;
-            System.out.println("Data is from InsuredPatient: " + insuredPatient.toString());
-        } else if (obj instanceof Insurance) {
-            Insurance insurance = (Insurance) obj;
-            System.out.println("Data is from Insurance: " + insurance.toString());
-        } else {
-            System.out.println("Unknown data type");
+            logger.log(Level.SEVERE, "Error deleting insurance", e);
         }
     }
 }

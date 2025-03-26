@@ -10,7 +10,7 @@ public class MedicalDBApp extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MedicalDBApp.class.getResource("/fxml/main.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
+        stage.setTitle("Medical Database Application");
         stage.setScene(scene);
         stage.show();
     }

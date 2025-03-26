@@ -2,90 +2,100 @@ package com.medicaldb.dao;
 
 import com.medicaldb.model.Drug;
 import com.medicaldb.util.DatabaseConnection;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DrugDAO {
-    public void create(Drug drug) {
-        String sql = "INSERT INTO drug (drugId, drugName, sideEffects, benefits) VALUES (?, ?, ?, ?)";
+    private static final Logger logger = Logger.getLogger(DrugDAO.class.getName());
+    private Connection connection;
+
+    public DrugDAO(Connection connection) {
+        this.connection = connection;
+    }
+
+    public void addDrug(Drug drug) {
+        String sql = "INSERT INTO drug (drugid, drugname, sideeffects, benefits) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, drug.getDrugId());
-            pstmt.setString(2, drug.getDrugName());
-            pstmt.setString(3, drug.getSideEffects());
-            pstmt.setString(4, drug.getBenefits());
-            pstmt.executeUpdate();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, drug.getDrugId());
+            stmt.setString(2, drug.getDrugName());
+            stmt.setString(3, drug.getSideEffects());
+            stmt.setString(4, drug.getBenefits());
+            stmt.executeUpdate();
+            logger.log(Level.INFO, "Drug added successfully: {0}", drug);
         } catch (SQLException e) {
-            System.err.println("Error creating drug: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error adding drug", e);
         }
     }
 
-    public Drug read(int drugId) {
-        String sql = "SELECT * FROM drug WHERE drugId = ?";
+    public Drug getDrug(int drugId) {
+        String sql = "SELECT * FROM drug WHERE drugid = ?";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, drugId);
-            ResultSet rs = pstmt.executeQuery();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, drugId);
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Drug(
-                    rs.getInt("drugId"),
-                    rs.getString("drugName"),
-                    rs.getString("sideEffects"),
-                    rs.getString("benefits")
+                        rs.getInt("drugid"),
+                        rs.getString("drugname"),
+                        rs.getString("sideeffects"),
+                        rs.getString("benefits")
                 );
             }
         } catch (SQLException e) {
-            System.err.println("Error reading drug: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error retrieving drug", e);
         }
         return null;
     }
 
-    public List<Drug> readAll() {
+    public List<Drug> getAllDrugs() {
         List<Drug> drugs = new ArrayList<>();
         String sql = "SELECT * FROM drug";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 drugs.add(new Drug(
-                    rs.getInt("drugId"),
-                    rs.getString("drugName"),
-                    rs.getString("sideEffects"),
-                    rs.getString("benefits")
+                        rs.getInt("drugid"),
+                        rs.getString("drugname"),
+                        rs.getString("sideeffects"),
+                        rs.getString("benefits")
                 ));
             }
         } catch (SQLException e) {
-            System.err.println("Error reading all drugs: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error retrieving all drugs", e);
         }
         return drugs;
     }
 
-    public void update(Drug drug) {
-        String sql = "UPDATE drug SET drugName = ?, sideEffects = ?, benefits = ? WHERE drugId = ?";
+    public void updateDrug(Drug drug) {
+        String sql = "UPDATE drug SET drugname = ?, sideeffects = ?, benefits = ? WHERE drugid = ?";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, drug.getDrugName());
-            pstmt.setString(2, drug.getSideEffects());
-            pstmt.setString(3, drug.getBenefits());
-            pstmt.setInt(4, drug.getDrugId());
-            pstmt.executeUpdate();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, drug.getDrugName());
+            stmt.setString(2, drug.getSideEffects());
+            stmt.setString(3, drug.getBenefits());
+            stmt.setInt(4, drug.getDrugId());
+            stmt.executeUpdate();
+            logger.log(Level.INFO, "Drug updated successfully: {0}", drug);
         } catch (SQLException e) {
-            System.err.println("Error updating drug: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error updating drug", e);
         }
     }
 
-    public void delete(int drugId) {
-        String sql = "DELETE FROM drug WHERE drugId = ?";
+    public void deleteDrug(int drugId) {
+        String sql = "DELETE FROM drug WHERE drugid = ?";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, drugId);
-            pstmt.executeUpdate();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, drugId);
+            stmt.executeUpdate();
+            logger.log(Level.INFO, "Drug deleted successfully: {0}", drugId);
         } catch (SQLException e) {
-            System.err.println("Error deleting drug: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error deleting drug", e);
         }
     }
 }
