@@ -6,6 +6,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
+import java.sql.Connection;
+
 public class DrugController {
 
     @FXML
@@ -21,19 +23,20 @@ public class DrugController {
     @FXML
     private TableView<Drug> drugTableView;
 
-    private DrugDAO drugDAO = new DrugDAO();
+    private Connection argument;
+    private DrugDAO drugDAO = new DrugDAO(argument); // Replace 'argument' with the actual argument needed
 
-    @FXML
-    private void onSearchDrug() {
-        int drugId = Integer.parseInt(drugSearchField.getText());
-        Drug drug = drugDAO.getDrug(drugId);
-        if (drug != null) {
-            drugIdField.setText(String.valueOf(drug.getDrugId()));
-            drugNameField.setText(drug.getDrugName());
-            drugSideEffectsField.setText(drug.getSideEffects());
-            drugBenefitsField.setText(drug.getBenefits());
-        }
+@FXML
+private void onSearchDrug() {
+    int drugId = Integer.parseInt(drugSearchField.getText());
+    Drug drug = drugDAO.getDrug(drugId);
+    if (drug != null) {
+        drugIdField.setText(String.valueOf(drug.getDrugId()));
+        drugNameField.setText(drug.getDrugName());
+        drugSideEffectsField.setText(drug.getSideEffects());
+        drugBenefitsField.setText(drug.getBenefits());
     }
+}
 
     @FXML
     private void onSaveDrug() {

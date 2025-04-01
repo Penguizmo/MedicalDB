@@ -77,7 +77,7 @@ public class PatientController {
 
             Patient patient;
             if (!company.isEmpty() && !insuranceType.isEmpty()) {
-                patient = new InsuredPatient(patientId, firstName, surname, postcode, address, phone, email, company, insuranceType, durationOfInsurance);
+                patient = new InsuredPatient(patientI, firstName, surname, postcode, address, phone, email, company, insuranceType, durationOfInsurance);
             } else {
                 patient = new Patient(patientId, firstName, surname, postcode, address, phone, email);
             }

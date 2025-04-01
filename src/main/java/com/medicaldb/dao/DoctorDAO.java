@@ -7,135 +7,169 @@ import com.medicaldb.util.DatabaseConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+/**
+ * The DoctorDAO class provides methods to interact with the Doctor table in the database.
+ * It includes methods to add, retrieve, update, and delete doctors.
+ */
 public class DoctorDAO {
-    private static final Logger logger = Logger.getLogger(DoctorDAO.class.getName());
-    private Connection connection;
 
-    public DoctorDAO(Connection connection) {
-        this.connection = connection;
-    }
+    /**
+     * Adds a new doctor to the database.
+     *
+     * @param doctor the doctor to be added
+     * @throws SQLException if a database access error occurs
+     */
+    public void addDoctor(Doctor doctor) throws SQLException {
+        String sql;
+        if (doctor instanceof Specialist) {
+            sql = "INSERT INTO Doctor (doctorid, firstname, surname, address, email, hospital, specialization, experience) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        } else {
+            sql = "INSERT INTO Doctor (doctorid, firstname, surname, address, email, hospital) VALUES (?, ?, ?, ?, ?, ?)";
+        }
 
-    public void addDoctor(Doctor doctor) {
-        String sql = "INSERT INTO doctor (doctorid, firstname, surname, address, email, specialization, experience) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, doctor.getDoctorId());
             stmt.setString(2, doctor.getFirstName());
             stmt.setString(3, doctor.getSurname());
             stmt.setString(4, doctor.getAddress());
             stmt.setString(5, doctor.getEmail());
+            stmt.setString(6, doctor.getHospital());
+
             if (doctor instanceof Specialist) {
                 Specialist specialist = (Specialist) doctor;
-                stmt.setString(6, specialist.getSpecialization());
-                stmt.setInt(7, specialist.getExperience());
-            } else {
-                stmt.setNull(6, Types.VARCHAR);
-                stmt.setNull(7, Types.INTEGER);
+                stmt.setString(7, specialist.getSpecialization());
+                stmt.setString(8, specialist.getExperience());
             }
+
             stmt.executeUpdate();
-            logger.log(Level.INFO, "Doctor added successfully: {0}", doctor);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error adding doctor", e);
         }
     }
 
-    public Doctor getDoctor(int doctorId) {
-        String sql = "SELECT * FROM doctor WHERE doctorid = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, doctorId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                if (rs.getString("specialization") != null) {
-                    return new Specialist(
-                            rs.getInt("doctorid"),
-                            rs.getString("firstname"),
-                            rs.getString("surname"),
-                            rs.getString("address"),
-                            rs.getString("email"),
-                            rs.getString("specialization"),
-                            rs.getInt("experience")
-                    );
-                } else {
-                    return new Doctor(
-                            rs.getInt("doctorid"),
-                            rs.getString("firstname"),
-                            rs.getString("surname"),
-                            rs.getString("address"),
-                            rs.getString("email")
-                    );
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving doctor", e);
-        }
-        return null;
-    }
-
-    public List<Doctor> getAllDoctors() {
+    /**
+     * Retrieves all doctors from the database.
+     *
+     * @return a list of all doctors
+     * @throws SQLException if a database access error occurs
+     */
+    public List<Doctor> getAllDoctors() throws SQLException {
         List<Doctor> doctors = new ArrayList<>();
-        String sql = "SELECT * FROM doctor";
-        try (Statement stmt = connection.createStatement();
+        String sql = "SELECT * FROM Doctor";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                if (rs.getString("specialization") != null) {
-                    doctors.add(new Specialist(
-                            rs.getInt("doctorid"),
-                            rs.getString("firstname"),
-                            rs.getString("surname"),
-                            rs.getString("address"),
-                            rs.getString("email"),
-                            rs.getString("specialization"),
-                            rs.getInt("experience")
-                    ));
+                int doctorid = rs.getInt("doctorid");
+                String firstname = rs.getString("firstname");
+                String surname = rs.getString("surname");
+                String address = rs.getString("address");
+                String email = rs.getString("email");
+                String hospital = rs.getString("hospital");
+                String specialization = rs.getString("specialization");
+                String experience = rs.getString("experience");
+
+                Doctor doctor;
+                if (specialization != null) {
+                    doctor = new Specialist(doctorid, firstname, surname, address, email, hospital, specialization, experience);
                 } else {
-                    doctors.add(new Doctor(
-                            rs.getInt("doctorid"),
-                            rs.getString("firstname"),
-                            rs.getString("surname"),
-                            rs.getString("address"),
-                            rs.getString("email")
-                    ));
+                    doctor = new Doctor(doctorid, firstname, surname, address, email, hospital);
                 }
+                doctors.add(doctor);
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving all doctors", e);
         }
         return doctors;
     }
 
-    public void updateDoctor(Doctor doctor) {
-        String sql = "UPDATE doctor SET firstname = ?, surname = ?, address = ?, email = ?, specialization = ?, experience = ? WHERE doctorid = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+    /**
+     * Retrieves a doctor by its ID.
+     *
+     * @param doctorId the ID of the doctor to retrieve
+     * @return the doctor with the specified ID, or null if not found
+     * @throws SQLException if a database access error occurs
+     */
+    public Doctor getDoctorById(int doctorId) throws SQLException {
+        String sql = "SELECT * FROM Doctor WHERE doctorid = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, doctorId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String specialization = rs.getString("specialization");
+                    String experience = rs.getString("experience");
+
+                    if (specialization != null) {
+                        return new Specialist(
+                                rs.getInt("doctorid"),
+                                rs.getString("firstname"),
+                                rs.getString("surname"),
+                                rs.getString("address"),
+                                rs.getString("email"),
+                                rs.getString("hospital"),
+                                specialization, experience);
+                    } else {
+                        return new Doctor(
+                                rs.getInt("doctorid"),
+                                rs.getString("firstname"),
+                                rs.getString("surname"),
+                                rs.getString("address"),
+                                rs.getString("email"),
+                                rs.getString("hospital"));
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Updates the details of an existing doctor in the database.
+     *
+     * @param doctor the doctor with updated details
+     * @throws SQLException if a database access error occurs
+     */
+    public void updateDoctor(Doctor doctor) throws SQLException {
+        String sql;
+        if (doctor instanceof Specialist) {
+            sql = "UPDATE Doctor SET firstname = ?, surname = ?, address = ?, email = ?, hospital = ?, specialization = ?, experience = ? WHERE doctorid = ?";
+        } else {
+            sql = "UPDATE Doctor SET firstname = ?, surname = ?, address = ?, email = ?, hospital = ? WHERE doctorid = ?";
+        }
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, doctor.getFirstName());
             stmt.setString(2, doctor.getSurname());
             stmt.setString(3, doctor.getAddress());
             stmt.setString(4, doctor.getEmail());
+            stmt.setString(5, doctor.getHospital());
+
             if (doctor instanceof Specialist) {
                 Specialist specialist = (Specialist) doctor;
-                stmt.setString(5, specialist.getSpecialization());
-                stmt.setInt(6, specialist.getExperience());
+                stmt.setString(6, specialist.getSpecialization());
+                stmt.setString(7, specialist.getExperience());
+                stmt.setInt(8, doctor.getDoctorId());
             } else {
-                stmt.setNull(5, Types.VARCHAR);
-                stmt.setNull(6, Types.INTEGER);
+                stmt.setInt(6, doctor.getDoctorId());
             }
-            stmt.setInt(7, doctor.getDoctorId());
+
             stmt.executeUpdate();
-            logger.log(Level.INFO, "Doctor updated successfully: {0}", doctor);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error updating doctor", e);
         }
     }
 
-    public void deleteDoctor(int doctorId) {
-        String sql = "DELETE FROM doctor WHERE doctorid = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, doctorId);
+    /**
+     * Deletes a doctor from the database by its ID.
+     *
+     * @param doctorid the ID of the doctor to delete
+     * @throws SQLException if a database access error occurs
+     */
+    public void deleteDoctor(int doctorid) throws SQLException {
+        String sql = "DELETE FROM Doctor WHERE doctorid = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, doctorid);
             stmt.executeUpdate();
-            logger.log(Level.INFO, "Doctor deleted successfully: {0}", doctorId);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error deleting doctor", e);
         }
     }
 }

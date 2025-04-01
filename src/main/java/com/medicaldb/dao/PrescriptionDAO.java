@@ -9,14 +9,35 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The PrescriptionDAO class provides methods to interact with the Prescription table in the database.
+ * It includes methods to add, retrieve, update, and delete prescription information.
+ */
 public class PrescriptionDAO {
     private static final Logger logger = Logger.getLogger(PrescriptionDAO.class.getName());
     private Connection connection;
 
+    /**
+     * Constructor with connection parameter. This is used when a specific connection is provided.
+     *
+     * @param connection the database connection to be used
+     */
     public PrescriptionDAO(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * Default constructor. This is used when no specific connection is provided.
+     */
+    public PrescriptionDAO() {
+    }
+
+    /**
+     * Adds a new prescription to the database.
+     *
+     * @param prescription the prescription to be added
+     * @throws SQLException if a database access error occurs
+     */
     public void addPrescription(Prescription prescription) {
         String sql = "INSERT INTO prescription (prescriptionid, dateprescribed, dosage, duration, comment) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -33,6 +54,13 @@ public class PrescriptionDAO {
         }
     }
 
+    /**
+     * Retrieves a prescription by its ID.
+     *
+     * @param prescriptionId the ID of the prescription to retrieve
+     * @return the prescription with the specified ID, or null if not found
+     * @throws SQLException if a database access error occurs
+     */
     public Prescription getPrescription(int prescriptionId) {
         String sql = "SELECT * FROM prescription WHERE prescriptionid = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -54,6 +82,12 @@ public class PrescriptionDAO {
         return null;
     }
 
+    /**
+     * Retrieves all prescriptions from the database.
+     *
+     * @return a list of all prescriptions
+     * @throws SQLException if a database access error occurs
+     */
     public List<Prescription> getAllPrescriptions() {
         List<Prescription> prescriptions = new ArrayList<>();
         String sql = "SELECT * FROM prescription";
@@ -75,6 +109,12 @@ public class PrescriptionDAO {
         return prescriptions;
     }
 
+    /**
+     * Updates the details of an existing prescription in the database.
+     *
+     * @param prescription the prescription with updated details
+     * @throws SQLException if a database access error occurs
+     */
     public void updatePrescription(Prescription prescription) {
         String sql = "UPDATE prescription SET dateprescribed = ?, dosage = ?, duration = ?, comment = ? WHERE prescriptionid = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -91,6 +131,12 @@ public class PrescriptionDAO {
         }
     }
 
+    /**
+     * Deletes a prescription from the database by its ID.
+     *
+     * @param prescriptionId the ID of the prescription to delete
+     * @throws SQLException if a database access error occurs
+     */
     public void deletePrescription(int prescriptionId) {
         String sql = "DELETE FROM prescription WHERE prescriptionid = ?";
         try (Connection conn = DatabaseConnection.getConnection();

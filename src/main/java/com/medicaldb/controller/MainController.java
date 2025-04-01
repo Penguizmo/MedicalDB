@@ -1,126 +1,61 @@
 package com.medicaldb.controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class MainController {
 
     @FXML
-    private void onSearchPatient() {
-        // Implement search patient logic
+    private void handleDoctors() {
+        navigateToPage("/fxml/Pages/DoctorTable.fxml");
     }
 
     @FXML
-    private void onSavePatient() {
-        // Implement save patient logic
+    private void handleDrugs() {
+        navigateToPage("/fxml/Pages/DrugTable.fxml");
     }
 
     @FXML
-    private void onUpdatePatient() {
-        // Implement update patient logic
+    private void handleInsuranceCompanies() {
+        navigateToPage("/fxml/Pages/InsuranceTable.fxml");
     }
 
     @FXML
-    private void onDeletePatient() {
-        // Implement delete patient logic
+    private void handlePatients() {
+        navigateToPage("/fxml/Pages/PatientTable.fxml");
     }
 
     @FXML
-    private void onSearchDoctor() {
-        // Implement search doctor logic
+    private void handlePrescriptions() {
+        navigateToPage("/fxml/Pages/PrescriptionTable.fxml");
     }
 
     @FXML
-    private void onSaveDoctor() {
-        // Implement save doctor logic
+    private void handleVisits() {
+        navigateToPage("/fxml/Pages/VisitTable.fxml");
     }
 
-    @FXML
-    private void onUpdateDoctor() {
-        // Implement update doctor logic
+    private void navigateToPage(String fxmlFilePath) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource(fxmlFilePath));
+            Stage stage = (Stage) ((Parent) FXMLLoader.load(getClass().getResource("/fxml/Pages/main.fxml"))).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Navigation Error", "Unable to load the page: " + fxmlFilePath);
+        }
     }
 
-    @FXML
-    private void onDeleteDoctor() {
-        // Implement delete doctor logic
-    }
-
-    @FXML
-    private void onSearchDrug() {
-        // Implement search drug logic
-    }
-
-    @FXML
-    private void onSaveDrug() {
-        // Implement save drug logic
-    }
-
-    @FXML
-    private void onUpdateDrug() {
-        // Implement update drug logic
-    }
-
-    @FXML
-    private void onDeleteDrug() {
-        // Implement delete drug logic
-    }
-
-    @FXML
-    private void onSearchInsurance() {
-        // Implement search insurance logic
-    }
-
-    @FXML
-    private void onSaveInsurance() {
-        // Implement save insurance logic
-    }
-
-    @FXML
-    private void onUpdateInsurance() {
-        // Implement update insurance logic
-    }
-
-    @FXML
-    private void onDeleteInsurance() {
-        // Implement delete insurance logic
-    }
-
-    @FXML
-    private void onSearchPrescription() {
-        // Implement search prescription logic
-    }
-
-    @FXML
-    private void onSavePrescription() {
-        // Implement save prescription logic
-    }
-
-    @FXML
-    private void onUpdatePrescription() {
-        // Implement update prescription logic
-    }
-
-    @FXML
-    private void onDeletePrescription() {
-        // Implement delete prescription logic
-    }
-
-    @FXML
-    private void onSearchVisit() {
-        // Implement search visit logic
-    }
-
-    @FXML
-    private void onSaveVisit() {
-        // Implement save visit logic
-    }
-
-    @FXML
-    private void onUpdateVisit() {
-        // Implement update visit logic
-    }
-
-    @FXML
-    private void onDeleteVisit() {
-        // Implement delete visit logic
+    private void showAlert(String title, String message) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

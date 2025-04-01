@@ -6,19 +6,21 @@ import com.medicaldb.util.DatabaseConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+/**
+ * The InsuranceDAO class provides methods to interact with the Insurance table in the database.
+ * It includes methods to add, retrieve, update, and delete insurance information.
+ */
 public class InsuranceDAO {
-    private static final Logger logger = Logger.getLogger(InsuranceDAO.class.getName());
-    private Connection connection;
 
-    public InsuranceDAO(Connection connection) {
-        this.connection = connection;
-    }
-
-    public void addInsurance(Insurance insurance) {
-        String sql = "INSERT INTO insurance (insuranceid, company, address, phone) VALUES (?, ?, ?, ?)";
+    /**
+     * Inserts a new insurance record into the database.
+     *
+     * @param insurance the insurance object to be added to the database
+     * @throws SQLException if a database access error occurs
+     */
+    public void addInsurance(Insurance insurance) throws SQLException {
+        String sql = "INSERT INTO Insurance (insuranceID, company, address, phone) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, insurance.getInsuranceId());
@@ -26,54 +28,66 @@ public class InsuranceDAO {
             stmt.setString(3, insurance.getAddress());
             stmt.setString(4, insurance.getPhone());
             stmt.executeUpdate();
-            logger.log(Level.INFO, "Insurance added successfully: {0}", insurance);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error adding insurance", e);
         }
     }
 
-    public Insurance getInsurance(String insuranceId) {
-        String sql = "SELECT * FROM insurance WHERE insuranceid = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, insuranceId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return new Insurance(
-                        rs.getString("insuranceid"),
-                        rs.getString("company"),
-                        rs.getString("address"),
-                        rs.getString("phone")
-                );
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving insurance", e);
-        }
-        return null;
-    }
-
-    public List<Insurance> getAllInsurances() {
+    /**
+     * Retrieves all insurance records from the database.
+     *
+     * @return a list containing all insurance providers in the database
+     * @throws SQLException if a database access error occurs
+     */
+    public List<Insurance> getAllInsurances() throws SQLException {
         List<Insurance> insurances = new ArrayList<>();
-        String sql = "SELECT * FROM insurance";
+        String sql = "SELECT * FROM Insurance";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                insurances.add(new Insurance(
-                        rs.getString("insuranceid"),
+                Insurance insurance = new Insurance(
+                        rs.getString("insuranceID"),
                         rs.getString("company"),
                         rs.getString("address"),
-                        rs.getString("phone")
-                ));
+                        rs.getString("phone"));
+                insurances.add(insurance);
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving all insurances", e);
         }
         return insurances;
     }
 
-    public void updateInsurance(Insurance insurance) {
-        String sql = "UPDATE insurance SET company = ?, address = ?, phone = ? WHERE insuranceid = ?";
+    /**
+     * Retrieves an insurance record from the database by its ID.
+     *
+     * @param insuranceId the unique identifier of the insurance provider to retrieve
+     * @return the insurance object if found, null otherwise
+     * @throws SQLException if a database access error occurs
+     */
+    public Insurance getInsuranceById(String insuranceId) throws SQLException {
+        String sql = "SELECT * FROM Insurance WHERE insuranceID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, insuranceId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Insurance(
+                            rs.getString("insuranceID"),
+                            rs.getString("company"),
+                            rs.getString("address"),
+                            rs.getString("phone"));
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Updates an existing insurance record in the database.
+     *
+     * @param insurance the insurance object with updated information
+     * @throws SQLException if a database access error occurs
+     */
+    public void updateInsurance(Insurance insurance) throws SQLException {
+        String sql = "UPDATE Insurance SET company = ?, address = ?, phone = ? WHERE insuranceID = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, insurance.getCompany());
@@ -81,21 +95,21 @@ public class InsuranceDAO {
             stmt.setString(3, insurance.getPhone());
             stmt.setString(4, insurance.getInsuranceId());
             stmt.executeUpdate();
-            logger.log(Level.INFO, "Insurance updated successfully: {0}", insurance);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error updating insurance", e);
         }
     }
 
-    public void deleteInsurance(String insuranceId) {
-        String sql = "DELETE FROM insurance WHERE insuranceid = ?";
+    /**
+     * Deletes an insurance record from the database based on its ID.
+     *
+     * @param insuranceId the unique identifier of the insurance provider to delete
+     * @throws SQLException if a database access error occurs
+     */
+    public void deleteInsurance(String insuranceId) throws SQLException {
+        String sql = "DELETE FROM Insurance WHERE insuranceID = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, insuranceId);
             stmt.executeUpdate();
-            logger.log(Level.INFO, "Insurance deleted successfully: {0}", insuranceId);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error deleting insurance", e);
         }
     }
 }

@@ -1,160 +1,175 @@
 package com.medicaldb.dao;
 
-import com.medicaldb.model.Patient;
 import com.medicaldb.model.InsuredPatient;
+import com.medicaldb.model.Patient;
 import com.medicaldb.util.DatabaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+/**
+ * The PatientDAO class provides methods to interact with the Patient table in the database.
+ * It includes methods to add, retrieve, update, and delete patient information.
+ */
 public class PatientDAO {
-    private static final Logger logger = Logger.getLogger(PatientDAO.class.getName());
-    private Connection connection;
 
-    public PatientDAO(Connection connection) {
-        this.connection = connection;
-    }
+    /**
+     * Inserts a new patient record into the database.
+     *
+     * @param patient the patient object to be added to the database
+     * @throws SQLException if a database access error occurs
+     */
+    public void addPatient(Patient patient) throws SQLException {
+        String sql;
+        if (patient instanceof InsuredPatient) {
+            sql = "INSERT INTO Patient (patientID, firstname, surname, postcode, address, phone, email, insuranceID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        } else {
+            sql = "INSERT INTO Patient (patientID, firstname, surname, postcode, address, phone, email) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        }
 
-    public void addPatient(Patient patient) {
-        String sql = "INSERT INTO patient (patientid, firstname, surname, postcode, address, phone, email, company, insurancetype, durationofinsurance) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, patient.getPatientId());
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, patient.getPatientId());
             stmt.setString(2, patient.getFirstName());
             stmt.setString(3, patient.getSurname());
             stmt.setString(4, patient.getPostcode());
             stmt.setString(5, patient.getAddress());
             stmt.setString(6, patient.getPhone());
             stmt.setString(7, patient.getEmail());
+
             if (patient instanceof InsuredPatient) {
                 InsuredPatient insuredPatient = (InsuredPatient) patient;
-                stmt.setString(8, insuredPatient.getCompany());
-                stmt.setString(9, insuredPatient.getInsuranceType());
-                stmt.setInt(10, insuredPatient.getDurationOfInsurance());
-            } else {
-                stmt.setNull(8, Types.VARCHAR);
-                stmt.setNull(9, Types.VARCHAR);
-                stmt.setNull(10, Types.INTEGER);
+                stmt.setString(8, insuredPatient.getInsuranceId());
             }
+
             stmt.executeUpdate();
-            logger.log(Level.INFO, "Patient added successfully: {0}", patient);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error adding patient", e);
         }
     }
 
-    public Patient getPatient(int patientId) {
-        String sql = "SELECT * FROM patient WHERE patientid = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, patientId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                if (rs.getString("company") != null) {
-                    return new InsuredPatient(
-                            rs.getInt("patientid"),
-                            rs.getString("firstname"),
-                            rs.getString("surname"),
-                            rs.getString("postcode"),
-                            rs.getString("address"),
-                            rs.getString("phone"),
-                            rs.getString("email"),
-                            rs.getString("company"),
-                            rs.getString("insurancetype"),
-                            rs.getInt("durationofinsurance")
-                    );
-                } else {
-                    return new Patient(
-                            rs.getInt("patientid"),
-                            rs.getString("firstname"),
-                            rs.getString("surname"),
-                            rs.getString("postcode"),
-                            rs.getString("address"),
-                            rs.getString("phone"),
-                            rs.getString("email")
-                    );
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving patient", e);
-        }
-        return null;
-    }
-
-    public List<Patient> getAllPatients() {
+    /**
+     * Retrieves all patient records from the database.
+     *
+     * @return a list containing all patients in the database
+     * @throws SQLException if a database access error occurs
+     */
+    public List<Patient> getAllPatients() throws SQLException {
         List<Patient> patients = new ArrayList<>();
-        String sql = "SELECT * FROM patient";
-        try (Statement stmt = connection.createStatement();
+        String sql = "SELECT * FROM Patient";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
-                if (rs.getString("company") != null) {
-                    patients.add(new InsuredPatient(
-                            rs.getInt("patientid"),
-                            rs.getString("firstname"),
-                            rs.getString("surname"),
-                            rs.getString("postcode"),
-                            rs.getString("address"),
-                            rs.getString("phone"),
-                            rs.getString("email"),
-                            rs.getString("company"),
-                            rs.getString("insurancetype"),
-                            rs.getInt("durationofinsurance")
-                    ));
+                // Extract patient details from the result set
+                String patientID = rs.getString("patientID");
+                String firstName = rs.getString("firstname");
+                String surname = rs.getString("surname");
+                String postcode = rs.getString("postcode");
+                String address = rs.getString("address");
+                String phone = rs.getString("phone");
+                String email = rs.getString("email");
+                String insuranceID = rs.getString("insuranceID");
+
+                Patient patient;
+                // Create either a Patient or InsuredPatient object based on the presence of insuranceID
+                if (insuranceID != null) {
+                    patient = new InsuredPatient(patientID, firstName, surname, postcode, address, phone, email, insuranceID);
                 } else {
-                    patients.add(new Patient(
-                            rs.getInt("patientid"),
-                            rs.getString("firstname"),
-                            rs.getString("surname"),
-                            rs.getString("postcode"),
-                            rs.getString("address"),
-                            rs.getString("phone"),
-                            rs.getString("email")
-                    ));
+                    patient = new Patient(patientID, firstName, surname, postcode, address, phone, email);
                 }
+                patients.add(patient);
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving all patients", e);
         }
         return patients;
     }
 
-    public void updatePatient(Patient patient) {
-        String sql = "UPDATE patient SET firstname = ?, surname = ?, postcode = ?, address = ?, phone = ?, email = ?, company = ?, insurancetype = ?, durationofinsurance = ? WHERE patientid = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, patient.getFirstName());
-            stmt.setString(2, patient.getSurname());
-            stmt.setString(3, patient.getPostcode());
-            stmt.setString(4, patient.getAddress());
-            stmt.setString(5, patient.getPhone());
-            stmt.setString(6, patient.getEmail());
-            if (patient instanceof InsuredPatient) {
-                InsuredPatient insuredPatient = (InsuredPatient) patient;
-                stmt.setString(7, insuredPatient.getCompany());
-                stmt.setString(8, insuredPatient.getInsuranceType());
-                stmt.setInt(9, insuredPatient.getDurationOfInsurance());
-                stmt.setInt(10, patient.getPatientId());
-            } else {
-                stmt.setNull(7, Types.VARCHAR);
-                stmt.setNull(8, Types.VARCHAR);
-                stmt.setNull(9, Types.INTEGER);
-                stmt.setInt(10, patient.getPatientId());
+    /**
+     * Retrieves a patient record from the database by its ID.
+     *
+     * @param patientID the unique identifier of the patient to retrieve
+     * @return the patient object if found, null otherwise
+     * @throws SQLException if a database access error occurs
+     */
+    public Patient getPatientById(String patientID) throws SQLException {
+        String sql = "SELECT * FROM Patient WHERE patientID = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, patientID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String insuranceID = rs.getString("insuranceID");
+                    // Return appropriate patient type based on whether insurance ID exists
+                    if (insuranceID != null) {
+                        return new InsuredPatient(
+                                rs.getString("patientID"),
+                                rs.getString("firstname"),
+                                rs.getString("surname"),
+                                rs.getString("postcode"),
+                                rs.getString("address"),
+                                rs.getString("phone"),
+                                rs.getString("email"),
+                                insuranceID);
+                    } else {
+                        return new Patient(
+                                rs.getString("patientID"),
+                                rs.getString("firstname"),
+                                rs.getString("surname"),
+                                rs.getString("postcode"),
+                                rs.getString("address"),
+                                rs.getString("phone"),
+                                rs.getString("email"));
+                    }
+                }
             }
-            stmt.executeUpdate();
-            logger.log(Level.INFO, "Patient updated successfully: {0}", patient);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error updating patient", e);
         }
+        // Return null if no matching patient was found
+        return null;
+
+/**
+ * Updates an existing patient record in the database.
+ * This method takes a Patient object as a parameter and updates the corresponding record in the database.
+ *
+ * @param patient the patient object containing updated information
+ * @throws SQLException if a database access error occurs
+ */
+public void updatePatient(Patient patient) throws SQLException {
+    String sql;
+    if (patient instanceof InsuredPatient) {
+        sql = "UPDATE Patient SET firstname = ?, surname = ?, postcode = ?, address = ?, phone = ?, email = ?, insuranceID = ? WHERE patientID = ?";
+    } else {
+        sql = "UPDATE Patient SET firstname = ?, surname = ?, postcode = ?, address = ?, phone = ?, email = ? WHERE patientID = ?";
     }
 
-    public void deletePatient(int patientId) {
-        String sql = "DELETE FROM patient WHERE patientid = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, patientId);
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, patient.getFirstName());
+        stmt.setString(2, patient.getSurname());
+        stmt.setString(3, patient.getPostcode());
+        stmt.setString(4, patient.getAddress());
+        stmt.setString(5, patient.getPhone());
+        stmt.setString(6, patient.getEmail());
+
+        if (patient instanceof InsuredPatient) {
+            InsuredPatient insuredPatient = (InsuredPatient) patient;
+            stmt.setString(7, insuredPatient.getInsuranceId());
+            stmt.setString(8, patient.getPatientId());
+        } else {
+            stmt.setString(7, patient.getPatientId());
+        }
+
+        stmt.executeUpdate();
+    }
+
+    public void deletePatient(String patientID) throws SQLException {
+        String sql = "DELETE FROM Patient WHERE patientID = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, patientID);
             stmt.executeUpdate();
-            logger.log(Level.INFO, "Patient deleted successfully: {0}", patientId);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error deleting patient", e);
         }
     }
 }

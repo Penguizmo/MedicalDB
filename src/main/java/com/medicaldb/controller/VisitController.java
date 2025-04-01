@@ -11,7 +11,6 @@ import javafx.scene.control.TextField;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.List;
 
 public class VisitController {
 
@@ -23,6 +22,10 @@ public class VisitController {
     private TextField symptomsField;
     @FXML
     private TextField diagnosisIdField;
+    @FXML
+    private TextField doctorIdField;
+    @FXML
+    private TextField patientIdField;
     @FXML
     private TableView<Visit> visitTableView;
 
@@ -42,7 +45,9 @@ public class VisitController {
                 if (visit != null) {
                     visitDateField.setText(visit.getDateOfVisit().toString());
                     symptomsField.setText(visit.getSymptoms());
-                    diagnosisIdField.setText(String.valueOf(visit.getDiagnosisId()));
+                    diagnosisIdField.setText(visit.getDiagnosis());
+                    doctorIdField.setText(String.valueOf(visit.getDoctorId()));
+                    patientIdField.setText(String.valueOf(visit.getPatientId()));
                 } else {
                     showAlert("No Visit Found", "No visit found with the given date.");
                 }
@@ -54,12 +59,14 @@ public class VisitController {
 
     @FXML
     private void onSaveVisit() {
-        if (isValidInput(visitDateField.getText(), symptomsField.getText(), diagnosisIdField.getText())) {
+        if (isValidInput(visitDateField.getText(), symptomsField.getText(), diagnosisIdField.getText(), doctorIdField.getText(), patientIdField.getText())) {
             Date visitDate = Date.valueOf(visitDateField.getText());
             String symptoms = symptomsField.getText();
-            int diagnosisId = Integer.parseInt(diagnosisIdField.getText());
+            String diagnosis = diagnosisIdField.getText();
+            int doctorId = Integer.parseInt(doctorIdField.getText());
+            int patientId = Integer.parseInt(patientIdField.getText());
 
-            Visit visit = new Visit(visitDate, symptoms, diagnosisId);
+            Visit visit = new Visit(visitDate, symptoms, diagnosis, doctorId, patientId);
             try {
                 visitDAO.createVisit(visit);
             } catch (SQLException e) {
@@ -70,12 +77,14 @@ public class VisitController {
 
     @FXML
     private void onUpdateVisit() {
-        if (isValidInput(visitDateField.getText(), symptomsField.getText(), diagnosisIdField.getText())) {
+        if (isValidInput(visitDateField.getText(), symptomsField.getText(), diagnosisIdField.getText(), doctorIdField.getText(), patientIdField.getText())) {
             Date visitDate = Date.valueOf(visitDateField.getText());
             String symptoms = symptomsField.getText();
-            int diagnosisId = Integer.parseInt(diagnosisIdField.getText());
+            String diagnosis = diagnosisIdField.getText();
+            int doctorId = Integer.parseInt(doctorIdField.getText());
+            int patientId = Integer.parseInt(patientIdField.getText());
 
-            Visit visit = new Visit(visitDate, symptoms, diagnosisId);
+            Visit visit = new Visit(visitDate, symptoms, diagnosis, doctorId, patientId);
             try {
                 visitDAO.updateVisit(visit, visitDate);
             } catch (SQLException e) {
