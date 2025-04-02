@@ -2,64 +2,59 @@ package com.medicaldb.controller;
 
 import com.medicaldb.dao.InsuranceDAO;
 import com.medicaldb.model.Insurance;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.sql.SQLException;
+import java.util.List;
 
 public class InsuranceController {
 
     @FXML
-    private TextField insuranceSearchField;
-    @FXML
-    private TextField insuranceIdField;
-    @FXML
-    private TextField insuranceCompanyField;
-    @FXML
-    private TextField insuranceAddressField;
-    @FXML
-    private TextField insurancePhoneField;
-    @FXML
-    private TableView<Insurance> insuranceTableView;
-
-    private InsuranceDAO insuranceDAO = new InsuranceDAO();
+    private TableView<Insurance> insuranceTable;
 
     @FXML
-    private void onSearchInsurance() {
-        String insuranceId = insuranceSearchField.getText();
-        Insurance insurance = insuranceDAO.getInsurance(insuranceId);
-        if (insurance != null) {
-            insuranceIdField.setText(insurance.getInsuranceId());
-            insuranceCompanyField.setText(insurance.getCompany());
-            insuranceAddressField.setText(insurance.getAddress());
-            insurancePhoneField.setText(insurance.getPhone());
+    private TableColumn<Insurance, String> insuranceIDColumn;
+
+    @FXML
+    private TableColumn<Insurance, String> companyColumn;
+
+    @FXML
+    private TableColumn<Insurance, String> addressColumn;
+
+    @FXML
+    private TableColumn<Insurance, String> phoneColumn;
+
+    private InsuranceDAO insuranceDAO;
+
+    private ObservableList<Insurance> insuranceList;
+
+    public InsuranceController() {
+        insuranceDAO = new InsuranceDAO();
+    }
+
+    @FXML
+    private void initialize() {
+        insuranceIDColumn.setCellValueFactory(new PropertyValueFactory<>("insuranceId"));
+        companyColumn.setCellValueFactory(new PropertyValueFactory<>("company"));
+        addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+        phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+
+        loadInsuranceData();
+    }
+
+    private void loadInsuranceData() {
+        try {
+            List<Insurance> insurances = insuranceDAO.getAllInsurances();
+            insuranceList = FXCollections.observableArrayList(insurances);
+            insuranceTable.setItems(insuranceList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle the exception (e.g., show an alert)
         }
-    }
-
-    @FXML
-    private void onSaveInsurance() {
-        String insuranceId = insuranceIdField.getText();
-        String company = insuranceCompanyField.getText();
-        String address = insuranceAddressField.getText();
-        String phone = insurancePhoneField.getText();
-
-        Insurance insurance = new Insurance(insuranceId, company, address, phone);
-        insuranceDAO.addInsurance(insurance);
-    }
-
-    @FXML
-    private void onUpdateInsurance() {
-        String insuranceId = insuranceIdField.getText();
-        String company = insuranceCompanyField.getText();
-        String address = insuranceAddressField.getText();
-        String phone = insurancePhoneField.getText();
-
-        Insurance insurance = new Insurance(insuranceId, company, address, phone);
-        insuranceDAO.updateInsurance(insurance);
-    }
-
-    @FXML
-    private void onDeleteInsurance() {
-        String insuranceId = insuranceIdField.getText();
-        insuranceDAO.deleteInsurance(insuranceId);
     }
 }

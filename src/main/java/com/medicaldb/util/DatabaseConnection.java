@@ -7,11 +7,22 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * The DatabaseConnection class provides a method to establish a connection to the database.
+ * It uses a singleton pattern to ensure only one connection is created.
+ */
 public class DatabaseConnection {
     private static Connection connection;
 
+    // Private constructor to prevent instantiation
     private DatabaseConnection() {}
 
+    /**
+     * Returns the database connection. If the connection does not exist, it creates a new one.
+     *
+     * @return the database connection
+     * @throws RuntimeException if there is an error connecting to the database
+     */
     public static Connection getConnection() {
         if (connection == null) {
             try (InputStream input = DatabaseConnection.class.getClassLoader().getResourceAsStream("database.properties")) {

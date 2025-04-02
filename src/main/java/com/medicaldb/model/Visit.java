@@ -1,6 +1,6 @@
 package com.medicaldb.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * The Visit class represents a medical visit with its details.
@@ -10,7 +10,7 @@ import java.util.Date;
 public class Visit {
     private String patientID;
     private int doctorid;
-    private Date dateofvisit;
+    private LocalDate dateofvisit;
     private String symptoms;
     private String diagnosisid;
 
@@ -23,13 +23,15 @@ public class Visit {
      * Constructor. This method is called when a new Visit object is created with specific details.
      * It takes parameters to set the fields of the class.
      *
+     * @param patientID The ID of the patient who was examined
+     * @param doctorid The ID of the doctor who conducted the visit
      * @param dateofvisit The date of the visit
      * @param symptoms The symptoms reported by the patient
      * @param diagnosisid The diagnosis provided by the doctor
-     * @param doctorid The ID of the doctor who conducted the visit
-     * @param patientID The ID of the patient who was examined
+
+
      */
-    public Visit(String patientID, int doctorid, Date dateofvisit, String symptoms, String diagnosisid) {
+    public Visit(String patientID, int doctorid, LocalDate dateofvisit, String symptoms, String diagnosisid) {
         this.patientID = patientID;
         this.doctorid = doctorid;
         this.dateofvisit = dateofvisit;
@@ -42,7 +44,7 @@ public class Visit {
      *
      * @return The date of the visit
      */
-    public Date getDateofvisit() {
+    public LocalDate getDateofvisit() {
         return dateofvisit;
     }
 
@@ -51,7 +53,7 @@ public class Visit {
      *
      * @param dateofvisit The date of the visit
      */
-    public void setDateofvisit(Date dateofvisit) {
+    public void setDateofvisit(LocalDate dateofvisit) {
         this.dateofvisit = dateofvisit;
     }
 

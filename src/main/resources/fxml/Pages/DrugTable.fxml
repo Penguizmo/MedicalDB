@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="fxml.DrugTable"
+            fx:controller="com.medicaldb.controller.DrugController"
             prefHeight="400.0" prefWidth="600.0">
-
+    <TableView fx:id="drugTable" layoutX="14.0" layoutY="14.0" prefHeight="372.0" prefWidth="572.0">
+        <columns>
+            <TableColumn fx:id="drugIDColumn" prefWidth="100.0" text="Drug ID"/>
+            <TableColumn fx:id="drugNameColumn" prefWidth="150.0" text="Drug Name"/>
+            <TableColumn fx:id="sideEffectsColumn" prefWidth="200.0" text="Side Effects"/>
+            <TableColumn fx:id="benefitsColumn" prefWidth="120.0" text="Benefits"/>
+        </columns>
+    </TableView>
 </AnchorPane>

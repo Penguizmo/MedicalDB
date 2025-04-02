@@ -2,101 +2,65 @@ package com.medicaldb.controller;
 
 import com.medicaldb.dao.PrescriptionDAO;
 import com.medicaldb.model.Prescription;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.sql.Date;
+import java.sql.SQLException;
 import java.util.List;
 
 public class PrescriptionController {
 
     @FXML
-    private TextField prescriptionSearchField;
+    private TableView<Prescription> prescriptionTable;
     @FXML
-    private TextField prescriptionIdField;
+    private TableColumn<Prescription, Integer> prescriptionIdColumn;
     @FXML
-    private TextField datePrescribedField;
+    private TableColumn<Prescription, java.util.Date> datePrescribedColumn;
     @FXML
-    private TextField dosageField;
+    private TableColumn<Prescription, String> dosageColumn;
     @FXML
-    private TextField durationField;
+    private TableColumn<Prescription, String> durationColumn;
     @FXML
-    private TextField commentField;
+    private TableColumn<Prescription, String> commentColumn;
     @FXML
-    private TableView<Prescription> prescriptionTableView;
+    private TableColumn<Prescription, Integer> drugIdColumn;
+    @FXML
+    private TableColumn<Prescription, Integer> doctorIdColumn;
+    @FXML
+    private TableColumn<Prescription, String> patientIdColumn;
 
-    private PrescriptionDAO prescriptionDAO = new PrescriptionDAO();
+    private PrescriptionDAO prescriptionDAO;
 
-    @FXML
-    private void onSearchPrescription() {
-        if (isValidInput(prescriptionSearchField.getText())) {
-            int prescriptionId = Integer.parseInt(prescriptionSearchField.getText());
-            Prescription prescription = prescriptionDAO.getPrescription(prescriptionId);
-            if (prescription != null) {
-                prescriptionIdField.setText(String.valueOf(prescription.getPrescriptionId()));
-                datePrescribedField.setText(prescription.getDatePrescribed().toString());
-                dosageField.setText(prescription.getDosage());
-                durationField.setText(String.valueOf(prescription.getDuration()));
-                commentField.setText(prescription.getComment());
-            } else {
-                showAlert("No Prescription Found", "No prescription found with the given ID.");
-            }
-        }
+    public PrescriptionController() {
+        prescriptionDAO = new PrescriptionDAO();
     }
 
     @FXML
-    private void onSavePrescription() {
-        if (isValidInput(prescriptionIdField.getText(), datePrescribedField.getText(), dosageField.getText(), durationField.getText(), commentField.getText())) {
-            int prescriptionId = Integer.parseInt(prescriptionIdField.getText());
-            Date datePrescribed = Date.valueOf(datePrescribedField.getText());
-            String dosage = dosageField.getText();
-            int duration = Integer.parseInt(durationField.getText());
-            String comment = commentField.getText();
+    private void initialize() {
+        prescriptionIdColumn.setCellValueFactory(new PropertyValueFactory<>("prescriptionId"));
+        datePrescribedColumn.setCellValueFactory(new PropertyValueFactory<>("datePrescribed"));
+        dosageColumn.setCellValueFactory(new PropertyValueFactory<>("dosage"));
+        durationColumn.setCellValueFactory(new PropertyValueFactory<>("duration"));
+        commentColumn.setCellValueFactory(new PropertyValueFactory<>("comment"));
+        drugIdColumn.setCellValueFactory(new PropertyValueFactory<>("drugId"));
+        doctorIdColumn.setCellValueFactory(new PropertyValueFactory<>("doctorId"));
+        patientIdColumn.setCellValueFactory(new PropertyValueFactory<>("patientID"));
 
-            Prescription prescription = new Prescription(prescriptionId, datePrescribed, dosage, duration, comment);
-            prescriptionDAO.addPrescription(prescription);
-        }
+        loadPrescriptionData();
     }
 
-    @FXML
-    private void onUpdatePrescription() {
-        if (isValidInput(prescriptionIdField.getText(), datePrescribedField.getText(), dosageField.getText(), durationField.getText(), commentField.getText())) {
-            int prescriptionId = Integer.parseInt(prescriptionIdField.getText());
-            Date datePrescribed = Date.valueOf(datePrescribedField.getText());
-            String dosage = dosageField.getText();
-            int duration = Integer.parseInt(durationField.getText());
-            String comment = commentField.getText();
-
-            Prescription prescription = new Prescription(prescriptionId, datePrescribed, dosage, duration, comment);
-            prescriptionDAO.updatePrescription(prescription);
+    private void loadPrescriptionData() {
+        try {
+            List<Prescription> prescriptionList = prescriptionDAO.getAllPrescriptions();
+            ObservableList<Prescription> prescriptionData = FXCollections.observableArrayList(prescriptionList);
+            prescriptionTable.setItems(prescriptionData);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle the exception (e.g., show an alert)
         }
-    }
-
-    @FXML
-    private void onDeletePrescription() {
-        if (isValidInput(prescriptionIdField.getText())) {
-            int prescriptionId = Integer.parseInt(prescriptionIdField.getText());
-            prescriptionDAO.deletePrescription(prescriptionId);
-        }
-    }
-
-    private boolean isValidInput(String... inputs) {
-        for (String input : inputs) {
-            if (input == null || input.trim().isEmpty()) {
-                showAlert("Invalid Input", "Please fill all the fields correctly.");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

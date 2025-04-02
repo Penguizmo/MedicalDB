@@ -2,67 +2,59 @@ package com.medicaldb.controller;
 
 import com.medicaldb.dao.DrugDAO;
 import com.medicaldb.model.Drug;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 
 public class DrugController {
 
     @FXML
-    private TextField drugSearchField;
-    @FXML
-    private TextField drugIdField;
-    @FXML
-    private TextField drugNameField;
-    @FXML
-    private TextField drugSideEffectsField;
-    @FXML
-    private TextField drugBenefitsField;
-    @FXML
-    private TableView<Drug> drugTableView;
-
-    private Connection argument;
-    private DrugDAO drugDAO = new DrugDAO(argument); // Replace 'argument' with the actual argument needed
-
-@FXML
-private void onSearchDrug() {
-    int drugId = Integer.parseInt(drugSearchField.getText());
-    Drug drug = drugDAO.getDrug(drugId);
-    if (drug != null) {
-        drugIdField.setText(String.valueOf(drug.getDrugId()));
-        drugNameField.setText(drug.getDrugName());
-        drugSideEffectsField.setText(drug.getSideEffects());
-        drugBenefitsField.setText(drug.getBenefits());
-    }
-}
+    private TableView<Drug> drugTable;
 
     @FXML
-    private void onSaveDrug() {
-        int drugId = Integer.parseInt(drugIdField.getText());
-        String drugName = drugNameField.getText();
-        String sideEffects = drugSideEffectsField.getText();
-        String benefits = drugBenefitsField.getText();
+    private TableColumn<Drug, Integer> drugIDColumn;
 
-        Drug drug = new Drug(drugId, drugName, sideEffects, benefits);
-        drugDAO.addDrug(drug);
+    @FXML
+    private TableColumn<Drug, String> drugNameColumn;
+
+    @FXML
+    private TableColumn<Drug, String> sideEffectsColumn;
+
+    @FXML
+    private TableColumn<Drug, String> benefitsColumn;
+
+    private DrugDAO drugDAO;
+
+    private ObservableList<Drug> drugList;
+
+    public DrugController() {
+        drugDAO = new DrugDAO();
     }
 
     @FXML
-    private void onUpdateDrug() {
-        int drugId = Integer.parseInt(drugIdField.getText());
-        String drugName = drugNameField.getText();
-        String sideEffects = drugSideEffectsField.getText();
-        String benefits = drugBenefitsField.getText();
+    private void initialize() {
+        drugIDColumn.setCellValueFactory(new PropertyValueFactory<>("drugId"));
+        drugNameColumn.setCellValueFactory(new PropertyValueFactory<>("drugName"));
+        sideEffectsColumn.setCellValueFactory(new PropertyValueFactory<>("sideEffects"));
+        benefitsColumn.setCellValueFactory(new PropertyValueFactory<>("benefits"));
 
-        Drug drug = new Drug(drugId, drugName, sideEffects, benefits);
-        drugDAO.updateDrug(drug);
+        loadDrugData();
     }
 
-    @FXML
-    private void onDeleteDrug() {
-        int drugId = Integer.parseInt(drugIdField.getText());
-        drugDAO.deleteDrug(drugId);
+    private void loadDrugData() {
+        try {
+            List<Drug> drugs = drugDAO.getAllDrugs();
+            drugList = FXCollections.observableArrayList(drugs);
+            drugTable.setItems(drugList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle the exception (e.g., show an alert)
+        }
     }
 }

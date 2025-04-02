@@ -1,0 +1,5 @@
+DB.properties
+
+String url = "jdbc:mysql://localhost:3306/healthinsurancedb";
+String user = "root";
+String password = "root";

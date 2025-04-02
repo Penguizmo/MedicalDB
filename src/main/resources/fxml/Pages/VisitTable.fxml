@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="fxml.VisitTable"
+            fx:controller="com.medicaldb.controller.VisitController"
             prefHeight="400.0" prefWidth="600.0">
-
+    <TableView fx:id="visitTable" layoutX="14.0" layoutY="14.0" prefHeight="372.0" prefWidth="572.0">
+        <columns>
+            <TableColumn fx:id="patientIDColumn" text="Patient ID" />
+            <TableColumn fx:id="doctorIDColumn" text="Doctor ID" />
+            <TableColumn fx:id="dateOfVisitColumn" text="Date of Visit" />
+            <TableColumn fx:id="symptomsColumn" text="Symptoms" />
+            <TableColumn fx:id="diagnosisIDColumn" text="Diagnosis ID" />
+        </columns>
+    </TableView>
 </AnchorPane>

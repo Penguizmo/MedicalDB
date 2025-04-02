@@ -135,6 +135,7 @@ public class PatientDAO {
  * @param patient the patient object containing updated information
  * @throws SQLException if a database access error occurs
  */
+
 public void updatePatient(Patient patient) throws SQLException {
     String sql;
     if (patient instanceof InsuredPatient) {
@@ -163,7 +164,10 @@ public void updatePatient(Patient patient) throws SQLException {
         stmt.executeUpdate();
     }
 
-    public void deletePatient(String patientID) throws SQLException {
+
+
+
+    public void deletePatient;(String patientID) throws SQLException {
         String sql = "DELETE FROM Patient WHERE patientID = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
