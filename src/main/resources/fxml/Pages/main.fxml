@@ -1,36 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Import necessary JavaFX classes for layout and controls -->
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<!-- Define the root element of the FXML file as an AnchorPane -->
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.medicaldb.controller.MainController"
             prefHeight="400.0" prefWidth="600.0">
-    <!-- VBox is used to arrange its children in a vertical column -->
     <VBox spacing="10.0" layoutX="50.0" layoutY="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0">
-        <!-- Label to display a welcome message at the top of the VBox -->
         <Label text="Welcome to the Medical Database Management System" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-        <!-- Label to instruct the user to select an option -->
         <Label text="Please select one of the options to view the information" style="-fx-font-size: 14px;"/>
-        <!-- HBox is used to arrange its children in a horizontal row -->
         <HBox spacing="10.0">
-            <!-- Button to navigate to the Doctors page, calls handleDoctors method in the controller -->
             <Button text="Doctors" onAction="#handleDoctors"/>
-            <!-- Button to navigate to the Drugs page, calls handleDrugs method in the controller -->
             <Button text="Drugs" onAction="#handleDrugs"/>
-            <!-- Button to navigate to the Insurance Companies page, calls handleInsuranceCompanies method in the controller -->
             <Button text="Insurance Companies" onAction="#handleInsuranceCompanies"/>
-            <!-- Button to navigate to the Patients page, calls handlePatients method in the controller -->
             <Button text="Patients" onAction="#handlePatients"/>
-            <!-- Button to navigate to the Prescriptions page, calls handlePrescriptions method in the controller -->
             <Button text="Prescriptions" onAction="#handlePrescriptions"/>
-            <!-- Button to navigate to the Visits page, calls handleVisits method in the controller -->
             <Button text="Visits" onAction="#handleVisits"/>
         </HBox>
     </VBox>

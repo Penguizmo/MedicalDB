@@ -162,15 +162,4 @@ public class DrugDAO {
     public List<Drug> getDrugsBySideEffects(String sideEffects) throws SQLException {
         return getDrugsByColumn("sideeffects", sideEffects);
     }
-
-    /**
-     * Retrieves drugs by their benefits.
-     *
-     * @param benefits the benefits of the drug to search for
-     * @return a list of drugs with the specified benefits
-     * @throws SQLException if a database access error occurs
-     */
-    public List<Drug> getDrugsByBenefits(String benefits) throws SQLException {
-        return getDrugsByColumn("benefits", benefits);
-    }
 }

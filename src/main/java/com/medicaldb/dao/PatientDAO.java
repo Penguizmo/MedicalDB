@@ -127,47 +127,53 @@ public class PatientDAO {
         }
         // Return null if no matching patient was found
         return null;
-
-/**
- * Updates an existing patient record in the database.
- * This method takes a Patient object as a parameter and updates the corresponding record in the database.
- *
- * @param patient the patient object containing updated information
- * @throws SQLException if a database access error occurs
- */
-
-public void updatePatient(Patient patient) throws SQLException {
-    String sql;
-    if (patient instanceof InsuredPatient) {
-        sql = "UPDATE Patient SET firstname = ?, surname = ?, postcode = ?, address = ?, phone = ?, email = ?, insuranceID = ? WHERE patientID = ?";
-    } else {
-        sql = "UPDATE Patient SET firstname = ?, surname = ?, postcode = ?, address = ?, phone = ?, email = ? WHERE patientID = ?";
     }
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-        stmt.setString(1, patient.getFirstName());
-        stmt.setString(2, patient.getSurname());
-        stmt.setString(3, patient.getPostcode());
-        stmt.setString(4, patient.getAddress());
-        stmt.setString(5, patient.getPhone());
-        stmt.setString(6, patient.getEmail());
+    /**
+     * Updates an existing patient record in the database.
+     *
+     * @param patient the patient object containing updated information
+     * @throws SQLException if a database access error occurs
+     */
 
-        if (patient instanceof InsuredPatient) {
-            InsuredPatient insuredPatient = (InsuredPatient) patient;
-            stmt.setString(7, insuredPatient.getInsuranceId());
-            stmt.setString(8, patient.getPatientId());
-        } else {
+    public void updatePatient(Patient patient) throws SQLException {
+        String sql = "UPDATE Patient SET firstname = ?, surname = ?, postcode = ?, address = ?, phone = ?, email = ? WHERE patientID = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, patient.getFirstName());
+            stmt.setString(2, patient.getSurname());
+            stmt.setString(3, patient.getPostcode());
+            stmt.setString(4, patient.getAddress());
+            stmt.setString(5, patient.getPhone());
+            stmt.setString(6, patient.getEmail());
             stmt.setString(7, patient.getPatientId());
+
+            stmt.executeUpdate();
         }
 
-        stmt.executeUpdate();
+        // If the patient is an InsuredPatient, update the insuranceID as well
+
+        if (patient instanceof InsuredPatient) {
+            String sqlInsurance = "UPDATE Patient SET insuranceID = ? WHERE patientID = ?";
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sqlInsurance)) {
+                stmt.setString(1, ((InsuredPatient) patient).getInsuranceId());
+                stmt.setString(2, patient.getPatientId());
+                stmt.executeUpdate();
+            }
+        }
+
     }
 
+    /**
+     * Deletes a patient record from the database by its ID.
+     *
+     * @param patientID the unique identifier of the patient to delete
+     * @throws SQLException if a database access error occurs
+     */
 
-
-
-    public void deletePatient;(String patientID) throws SQLException {
+    public void deletePatient(String patientID) throws SQLException {
         String sql = "DELETE FROM Patient WHERE patientID = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();

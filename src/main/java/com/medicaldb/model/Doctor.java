@@ -156,4 +156,12 @@ public class Doctor {
     public String toString() {
         return "Doctor [ID=" + doctorid + ", FirstName=" + firstname + ", Surname=" + surname + ", Address=" + address + ", Email=" + email + ", Hospital=" + hospital + "]";
     }
+
+    public String getSpecialization() {
+        return "";
+    }
+
+    public String getExperience() {
+        return "";
+    }
 }

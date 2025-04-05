@@ -2,222 +2,164 @@ package com.medicaldb.controller;
 
 import com.medicaldb.dao.DoctorDAO;
 import com.medicaldb.model.Doctor;
-import com.medicaldb.model.Specialist;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Optional;
 
 public class DoctorController {
 
     @FXML
-    private TextField doctorSearchField;
-    @FXML
-    private TableView<Doctor> doctorTableView;
+    private TableView<Doctor> doctorTable;
     @FXML
     private TableColumn<Doctor, Integer> doctorIdColumn;
     @FXML
-    private TableColumn<Doctor, String> doctorFirstNameColumn;
+    private TableColumn<Doctor, String> firstNameColumn;
     @FXML
-    private TableColumn<Doctor, String> doctorSurnameColumn;
+    private TableColumn<Doctor, String> surnameColumn;
     @FXML
-    private TableColumn<Doctor, String> doctorAddressColumn;
+    private TableColumn<Doctor, String> addressColumn;
     @FXML
-    private TableColumn<Doctor, String> doctorEmailColumn;
+    private TableColumn<Doctor, String> emailColumn;
     @FXML
-    private TableColumn<Doctor, String> doctorHospitalColumn;
+    private TableColumn<Doctor, String> hospitalColumn;
     @FXML
-    private TableColumn<Doctor, String> doctorSpecializationColumn;
+    private TableColumn<Doctor, String> specializationColumn;
     @FXML
-    private TableColumn<Doctor, String> doctorExperienceColumn;
+    private TableColumn<Doctor, String> experienceColumn;
     @FXML
-    private TextField doctorIdField;
-    @FXML
-    private TextField doctorFirstNameField;
-    @FXML
-    private TextField doctorSurnameField;
-    @FXML
-    private TextField doctorAddressField;
-    @FXML
-    private TextField doctorEmailField;
-    @FXML
-    private TextField doctorHospitalField;
-    @FXML
-    private CheckBox specialistCheckBox;
-    @FXML
-    private TextField doctorSpecializationField;
-    @FXML
-    private TextField doctorExperienceField;
+    private TextField searchField;
 
-    private DoctorDAO doctorDAO;
-    private ObservableList<Doctor> doctorList;
-
-    public DoctorController() {
-        doctorDAO = new DoctorDAO();
-    }
+    private ObservableList<Doctor> doctorData = FXCollections.observableArrayList();
+    private FilteredList<Doctor> filteredData;
+    private DoctorDAO doctorDAO = new DoctorDAO();
 
     @FXML
     private void initialize() {
         doctorIdColumn.setCellValueFactory(new PropertyValueFactory<>("doctorId"));
-        doctorFirstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
-        doctorSurnameColumn.setCellValueFactory(new PropertyValueFactory<>("surname"));
-        doctorAddressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
-        doctorEmailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
-        doctorHospitalColumn.setCellValueFactory(new PropertyValueFactory<>("hospital"));
-        doctorSpecializationColumn.setCellValueFactory(new PropertyValueFactory<>("specialization"));
-        doctorExperienceColumn.setCellValueFactory(new PropertyValueFactory<>("experience"));
+        firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        surnameColumn.setCellValueFactory(new PropertyValueFactory<>("surname"));
+        addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+        hospitalColumn.setCellValueFactory(new PropertyValueFactory<>("hospital"));
+        specializationColumn.setCellValueFactory(new PropertyValueFactory<>("specialization"));
+        experienceColumn.setCellValueFactory(new PropertyValueFactory<>("experience"));
 
         loadDoctorData();
+
+        filteredData = new FilteredList<>(doctorData, p -> true);
+        doctorTable.setItems(filteredData);
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(doctor -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                return doctor.getFirstName().toLowerCase().contains(lowerCaseFilter) ||
+                        doctor.getSurname().toLowerCase().contains(lowerCaseFilter) ||
+                        doctor.getAddress().toLowerCase().contains(lowerCaseFilter) ||
+                        doctor.getEmail().toLowerCase().contains(lowerCaseFilter) ||
+                        doctor.getHospital().toLowerCase().contains(lowerCaseFilter) ||
+                        (doctor.getSpecialization() != null && doctor.getSpecialization().toLowerCase().contains(lowerCaseFilter)) ||
+                        (doctor.getExperience() != null && doctor.getExperience().toLowerCase().contains(lowerCaseFilter));
+            });
+        });
     }
 
     private void loadDoctorData() {
         try {
-            List<Doctor> doctors = doctorDAO.getAllDoctors();
-            doctorList = FXCollections.observableArrayList(doctors);
-            doctorTableView.setItems(doctorList);
+            doctorData.setAll(doctorDAO.getAllDoctors());
         } catch (SQLException e) {
-            e.printStackTrace();
-            // Handle the exception (e.g., show an alert)
+            showErrorAlert("Error loading doctor data", e.getMessage());
         }
     }
 
     @FXML
-    private void onSearchDoctor() {
-        String doctorId = doctorSearchField.getText();
-        if (doctorId != null && !doctorId.isEmpty()) {
-            try {
-                Doctor doctor = doctorDAO.getDoctorById(Integer.parseInt(doctorId));
-                if (doctor != null) {
-                    doctorList.clear();
-                    doctorList.add(doctor);
-                } else {
-                    // Handle doctor not found (e.g., show an alert)
+    private void handleAddDoctor() {
+        // Logic to add a new doctor
+    }
+
+    @FXML
+    private void handleEditDoctor() {
+        Doctor selectedDoctor = doctorTable.getSelectionModel().getSelectedItem();
+        if (selectedDoctor != null) {
+            // Logic to edit the selected doctor
+        } else {
+            showWarningAlert("No Selection", "No Doctor Selected", "Please select a doctor in the table.");
+        }
+    }
+
+    @FXML
+    private void handleDeleteDoctor() {
+        Doctor selectedDoctor = doctorTable.getSelectionModel().getSelectedItem();
+        if (selectedDoctor != null) {
+            Optional<ButtonType> result = showConfirmationAlert("Delete Doctor", "Are you sure you want to delete this doctor?");
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                try {
+                    doctorDAO.deleteDoctor(selectedDoctor.getDoctorId());
+                    doctorData.remove(selectedDoctor);
+                } catch (SQLException e) {
+                    showErrorAlert("Error deleting doctor", e.getMessage());
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                // Handle the exception (e.g., show an alert)
             }
         } else {
-            loadDoctorData();
+            showWarningAlert("No Selection", "No Doctor Selected", "Please select a doctor in the table.");
         }
     }
 
     @FXML
-    private void onSaveDoctor() {
+    private void handleBack() {
         try {
-            Doctor doctor;
-            if (specialistCheckBox.isSelected()) {
-                doctor = new Specialist(
-                        Integer.parseInt(doctorIdField.getText()),
-                        doctorFirstNameField.getText(),
-                        doctorSurnameField.getText(),
-                        doctorAddressField.getText(),
-                        doctorEmailField.getText(),
-                        doctorHospitalField.getText(),
-                        doctorSpecializationField.getText(),
-                        doctorExperienceField.getText()
-                );
-            } else {
-                doctor = new Doctor(
-                        Integer.parseInt(doctorIdField.getText()),
-                        doctorFirstNameField.getText(),
-                        doctorSurnameField.getText(),
-                        doctorAddressField.getText(),
-                        doctorEmailField.getText(),
-                        doctorHospitalField.getText()
-                );
-            }
-            doctorDAO.addDoctor(doctor);
-            loadDoctorData();
-        } catch (SQLException e) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Pages/Main.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Main");
+            stage.setScene(new Scene(root));
+            stage.show();
+            // Close the current window
+            Stage currentStage = (Stage) doctorTable.getScene().getWindow();
+            currentStage.close();
+        } catch (IOException e) {
             e.printStackTrace();
-            // Handle the exception (e.g., show an alert)
         }
     }
 
-    @FXML
-    private void onUpdateDoctor() {
-        try {
-            Doctor doctor;
-            if (specialistCheckBox.isSelected()) {
-                doctor = new Specialist(
-                        Integer.parseInt(doctorIdField.getText()),
-                        doctorFirstNameField.getText(),
-                        doctorSurnameField.getText(),
-                        doctorAddressField.getText(),
-                        doctorEmailField.getText(),
-                        doctorHospitalField.getText(),
-                        doctorSpecializationField.getText(),
-                        doctorExperienceField.getText()
-                );
-            } else {
-                doctor = new Doctor(
-                        Integer.parseInt(doctorIdField.getText()),
-                        doctorFirstNameField.getText(),
-                        doctorSurnameField.getText(),
-                        doctorAddressField.getText(),
-                        doctorEmailField.getText(),
-                        doctorHospitalField.getText()
-                );
-            }
-            doctorDAO.updateDoctor(doctor);
-            loadDoctorData();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Handle the exception (e.g., show an alert)
-        }
+    private void showErrorAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
-    @FXML
-    private void onDeleteDoctor() {
-        try {
-            int doctorId = Integer.parseInt(doctorIdField.getText());
-            doctorDAO.deleteDoctor(doctorId);
-            loadDoctorData();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Handle the exception (e.g., show an alert)
-        }
+    private void showWarningAlert(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
-    @FXML
-    private void onSpecialistCheckBox() {
-        boolean isSpecialist = specialistCheckBox.isSelected();
-        doctorSpecializationField.setVisible(isSpecialist);
-        doctorExperienceField.setVisible(isSpecialist);
-    }
-
-    @FXML
-    private void handleMainPage() {
-        // Handle navigation to the main page
-    }
-
-    @FXML
-    private void handleDrugs() {
-        // Handle navigation to the drugs page
-    }
-
-    @FXML
-    private void handleInsuranceCompanies() {
-        // Handle navigation to the insurance companies page
-    }
-
-    @FXML
-    private void handlePatients() {
-        // Handle navigation to the patients page
-    }
-
-    @FXML
-    private void handlePrescriptions() {
-        // Handle navigation to the prescriptions page
-    }
-
-    @FXML
-    private void handleVisits() {
-        // Handle navigation to the visits page
+    private Optional<ButtonType> showConfirmationAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        return alert.showAndWait();
     }
 }
+

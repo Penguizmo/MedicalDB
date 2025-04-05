@@ -17,7 +17,7 @@ public class Patient {
     /**
      * Default constructor. This method is called when a new Patient object is created without any details.
      */
-    public Patient(String patientID, String firstname, String surname, String postcode, String address, String phone, String email) {}
+    public Patient() {}
 
     /**
      * Constructor. This method is called when a new Patient object is created with specific details.
@@ -31,7 +31,7 @@ public class Patient {
      * @param phone The patient's phone number
      * @param email The patient's email contact
      */
-    public Patient(String patientID, String firstname, String surname, String postcode, String address, String phone, String email, String insuranceid) {
+    public Patient(String patientID, String firstname, String surname, String postcode, String address, String phone, String email) {
         this.patientID = patientID;
         this.firstname = firstname;
         this.surname = surname;
