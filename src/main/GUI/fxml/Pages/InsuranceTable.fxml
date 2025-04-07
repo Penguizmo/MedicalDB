@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.medicaldb.controller.InsuranceController">
+    <Label layoutX="42.0" layoutY="20.0" text="Search the database">
+        <font>
+            <Font size="24.0" />
+        </font>
+    </Label>
+    <TextField fx:id="searchField" layoutX="270.0" layoutY="25.0" prefHeight="26.0" prefWidth="605.0" promptText="Search..." />
+    <TableView fx:id="insuranceTable" layoutX="25.0" layoutY="73.0" prefHeight="400.0" prefWidth="850.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="24.59999999999991">
+        <columns>
+            <TableColumn fx:id="insuranceIDColumn" text="Insurance ID">
+                <cellValueFactory>
+                    <PropertyValueFactory property="insuranceId" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="companyColumn" text="Company">
+                <cellValueFactory>
+                    <PropertyValueFactory property="company" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="addressColumn" text="Address">
+                <cellValueFactory>
+                    <PropertyValueFactory property="address" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="phoneColumn" text="Phone">
+                <cellValueFactory>
+                    <PropertyValueFactory property="phone" />
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+    <Button fx:id="addInsuranceButton" layoutX="13.0" layoutY="498.0" onAction="#handleAddInsurance" text="Add Insurance" />
+    <Button fx:id="editInsuranceButton" layoutX="119.0" layoutY="498.0" onAction="#handleEditInsurance" text="Edit Insurance" />
+    <Button fx:id="deleteInsuranceButton" layoutX="224.0" layoutY="498.0" onAction="#handleDeleteInsurance" text="Delete Insurance" />
+    <Button fx:id="homePageButton" layoutX="13.0" layoutY="538.0" onAction="#handleHomePage" text="Home Page" />
+</AnchorPane>

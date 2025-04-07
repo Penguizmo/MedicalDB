@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.medicaldb.controller.DrugController">
+    <Label layoutX="42.0" layoutY="20.0" text="Search the database">
+        <font>
+            <Font size="24.0" />
+        </font>
+    </Label>
+    <TextField fx:id="searchField" layoutX="270.0" layoutY="25.0" prefHeight="26.0" prefWidth="605.0" promptText="Search..." />
+    <TableView fx:id="drugTable" layoutX="25.0" layoutY="73.0" prefHeight="400.0" prefWidth="850.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="24.59999999999991">
+        <columns>
+            <TableColumn fx:id="drugIDColumn" text="Drug ID">
+                <cellValueFactory>
+                    <PropertyValueFactory property="drugId" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="drugNameColumn" text="Drug Name">
+                <cellValueFactory>
+                    <PropertyValueFactory property="drugName" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="sideEffectsColumn" text="Side Effects">
+                <cellValueFactory>
+                    <PropertyValueFactory property="sideEffects" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="benefitsColumn" text="Benefits">
+                <cellValueFactory>
+                    <PropertyValueFactory property="benefits" />
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+    <Button fx:id="addDrugButton" layoutX="13.0" layoutY="498.0" onAction="#handleAddDrug" prefHeight="25.0" prefWidth="78.0" text="Add Drug" />
+    <Button fx:id="editDrugButton" layoutX="101.0" layoutY="498.0" onAction="#handleEditDrug" prefHeight="25.0" prefWidth="78.0" text="Edit Drug" />
+    <Button fx:id="deleteDrugButton" layoutX="192.0" layoutY="498.0" onAction="#handleDeleteDrug" text="Delete Drug" />
+    <Button fx:id="homePageButton" layoutX="13.0" layoutY="538.0" onAction="#handleHomePage" text="Home Page" />
+</AnchorPane>

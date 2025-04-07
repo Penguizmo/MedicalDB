@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.medicaldb.controller.PatientController">
+    <Label layoutX="42.0" layoutY="20.0" text="Search the database">
+        <font>
+            <Font size="24.0" />
+        </font>
+    </Label>
+    <TextField fx:id="searchField" layoutX="270.0" layoutY="25.0" prefHeight="26.0" prefWidth="605.0" promptText="Search..." />
+    <TableView fx:id="patientTable" layoutX="25.0" layoutY="73.0" prefHeight="400.0" prefWidth="850.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="24.59999999999991">
+        <columns>
+            <TableColumn fx:id="patientIDColumn" text="Patient ID">
+                <cellValueFactory>
+                    <PropertyValueFactory property="patientId" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="firstNameColumn" text="First Name">
+                <cellValueFactory>
+                    <PropertyValueFactory property="firstName" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="surnameColumn" text="Surname">
+                <cellValueFactory>
+                    <PropertyValueFactory property="surname" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="postcodeColumn" text="Postcode">
+                <cellValueFactory>
+                    <PropertyValueFactory property="postcode" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="addressColumn" text="Address">
+                <cellValueFactory>
+                    <PropertyValueFactory property="address" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="phoneColumn" text="Phone">
+                <cellValueFactory>
+                    <PropertyValueFactory property="phone" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="emailColumn" text="Email">
+                <cellValueFactory>
+                    <PropertyValueFactory property="email" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="insuranceIDColumn" text="Insurance ID">
+                <cellValueFactory>
+                    <PropertyValueFactory property="insuranceId" />
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+    <Button fx:id="addPatientButton" layoutX="13.0" layoutY="498.0" onAction="#handleAddPatient" text="Add Patient" />
+    <Button fx:id="editPatientButton" layoutX="101.0" layoutY="498.0" onAction="#handleEditPatient" text="Edit Patient" />
+    <Button fx:id="deletePatientButton" layoutX="192.0" layoutY="498.0" onAction="#handleDeletePatient" text="Delete Patient" />
+    <Button fx:id="homePageButton" layoutX="13.0" layoutY="538.0" onAction="#handleHomePage" text="Home Page" />
+</AnchorPane>
